@@ -1,3 +1,20 @@
+# agentX – AI Insurance Agent
+
+Build smarter insurance and life plans instantly — powered by AI.
+
+## Features (MVP)
+
+- 🔹 Insurance Needs Estimator
+- 🔹 Retirement Readiness Checker (early version)
+- 🔹 Simple, anonymous life-planning workspace (no sign-up)
+
+## Tech Stack
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Redux Toolkit
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
