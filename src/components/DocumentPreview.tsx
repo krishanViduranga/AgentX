@@ -51,14 +51,14 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 <h1 className="text-4xl font-bold mb-8">{outline.mainTopic}</h1>
                 {topicInfo?.academicLevel && (
                   <p className="text-xl mb-8">
-                    {topicInfo.academicLevel} Level Research Paper
+                    {topicInfo.academicLevel} Level Financial Plan Summary
                   </p>
                 )}
                 <p className="text-muted-foreground mt-12">
-                  Prepared by: Student Name
+                  Prepared by: AgentX
                 </p>
                 <p className="text-muted-foreground mt-2">
-                  Institution: University Name
+                  Institution: AgentX
                 </p>
                 <p className="text-muted-foreground mt-8">
                   Date: {new Date().toLocaleDateString()}

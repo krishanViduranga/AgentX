@@ -14,8 +14,9 @@ export async function generateAIContent(
       model: google("gemini-2.0-flash-lite", {
         // useSearchGrounding: true,
       }),
+
       system:
-        "You are a professional financial advisor based in Japan, specializing in life insurance and financial planning. Your responses must be polite, accurate, and culturally appropriate for Japanese clients. Use a formal yet easy-to-understand tone, and respect Japan’s financial norms and client expectations.",
+        "You are a professional financial advisor based in Japan, specializing in life insurance and financial planning.Your responses must be polite, accurate, and culturally appropriate for Japanese clients.Use a formal yet easy-to-understand tone, and respect Japan’s financial norms and client expectations.",
       prompt: [
         `Write a personalized, well-structured explanation (100-120 words) for the subtopic "${subtopicTitle}" under the section "${sectionTitle}" of a smart insurance and life planning guide on "${mainTopic}".`,
         `Client profile:`,

@@ -37,7 +37,7 @@ export const exportDocument = async (
       if (topicInfo?.academicLevel) {
         doc.setFontSize(14);
         doc.setFont("helvetica", "normal");
-        const subtitleText = `${topicInfo.academicLevel} Level Research Paper`;
+        const subtitleText = `${topicInfo.academicLevel} Level Financial Plan Summary`;
         const subtitleWidth =
           (doc.getStringUnitWidth(subtitleText) * 14) /
           doc.internal.scaleFactor;
@@ -61,7 +61,7 @@ export const exportDocument = async (
       doc.text(dateText, dateX > 0 ? dateX : 20, 110);
 
       // Add institution
-      const institutionText = "Institution: University Name";
+      const institutionText = "Institution: Agent Name";
       const institutionWidth =
         (doc.getStringUnitWidth(institutionText) * 12) /
         doc.internal.scaleFactor;
@@ -258,7 +258,7 @@ export const exportDocument = async (
                       spacing: { after: 400 },
                       children: [
                         new TextRun({
-                          text: `${topicInfo.academicLevel} Level Research Paper`,
+                          text: `${topicInfo.academicLevel} Level Financial Plan Summary`,
                           size: 32, // 16pt
                         }),
                       ],
@@ -284,7 +284,7 @@ export const exportDocument = async (
                 spacing: { after: 200 },
                 children: [
                   new TextRun({
-                    text: "Institution: University Name",
+                    text: "Institution: AgentX",
                     size: 24, // 12pt
                   }),
                 ],

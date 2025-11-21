@@ -181,7 +181,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
             localOutline.mainTopic,
             section.title,
             subtopic.title,
-            topicInfo.academicLevel || "undergraduate"
+            topicInfo.academicLevel || "Basic"
           );
 
           // Update the outline with new content
