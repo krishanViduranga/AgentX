@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        hostname: "assets.lummi.ai",
+      },
+    ],
+  },
+  experimental: {
+    viewTransition: true,
+  }, 
 };
 
 export default nextConfig;
