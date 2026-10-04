@@ -7,6 +7,7 @@ Build smarter insurance and life plans instantly — powered by AI.
 - 🔹 Insurance Needs Estimator
 - 🔹 Retirement Readiness Checker (early version)
 - 🔹 Simple, anonymous life-planning workspace (no sign-up)
+- 🔹 Automatically saved life-plan drafts that can be resumed or deleted in the same browser
 
 ## Tech Stack
 

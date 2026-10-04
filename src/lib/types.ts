@@ -25,3 +25,11 @@ export interface DocumentOutline {
   mainTopic: string;
   sections: Section[];
 }
+
+export interface PlannerDraft {
+  version: 1;
+  savedAt: string;
+  step: number;
+  topicInfo: Topic | null;
+  documentOutline: DocumentOutline | null;
+}
