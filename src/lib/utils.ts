@@ -4,7 +4,7 @@ import { jsPDF } from "jspdf";
 import { saveAs } from "file-saver";
 import { toast } from "sonner";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun } from "docx";
-import { DocumentOutline } from "./types";
+import { DocumentOutline, Topic } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
 export const exportDocument = async (
   outline: DocumentOutline,
   format: "DOCX" | "PDF" | "EXCEL",
-  topicInfo?: any
+  topicInfo?: Topic
 ) => {
   try {
     if (format === "PDF") {
@@ -460,7 +460,7 @@ export const exportDocument = async (
             })),
         }));
 
-      const rows: any[] = [];
+      const rows: { Section: string; Subtopic: string; Content: string }[] = [];
 
       selectedSections.forEach((section, sectionIndex) => {
         rows.push({

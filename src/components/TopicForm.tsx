@@ -38,9 +38,7 @@ const TopicForm: React.FC<TopicFormProps> = ({
   const [documentLength, setDocumentLength] = useState<number>(
     initialTopicInfo?.documentLength ?? 10
   );
-  const [outputFormat, setOutputFormat] = useState<"DOCX" | "PDF">(
-    initialTopicInfo?.outputFormat ?? "DOCX"
-  );
+  const outputFormat = initialTopicInfo?.outputFormat ?? "DOCX";
   const [academicLevel, setAcademicLevel] = useState(
     initialTopicInfo?.academicLevel ?? "Undergraduate"
   );

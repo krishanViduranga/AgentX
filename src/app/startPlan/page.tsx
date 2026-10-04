@@ -167,9 +167,13 @@ const Index = () => {
       setDocumentOutline(outline);
       setStep(2);
       toast.success("Outline generated successfully!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to generate outline:", error);
-      toast.error(`Failed to generate outline: ${error.message}`);
+      toast.error(
+        `Failed to generate outline: ${
+          error instanceof Error ? error.message : "Please try again."
+        }`
+      );
     } finally {
       setLoading(false);
     }
