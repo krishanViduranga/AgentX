@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,14 +22,48 @@ import { Topic } from "@/lib/types";
 
 interface TopicFormProps {
   onSubmit: (topic: Topic) => void;
+  onDraftChange: (topic: Topic) => void;
+  initialTopicInfo: Topic | null;
 }
 
-const TopicForm: React.FC<TopicFormProps> = ({ onSubmit }) => {
-  const [mainTopic, setMainTopic] = useState("");
-  const [topicDescription, setTopicDescription] = useState("");
-  const [documentLength, setDocumentLength] = useState<number>(10);
-  const [outputFormat, setOutputFormat] = useState<"DOCX" | "PDF">("DOCX");
-  const [academicLevel, setAcademicLevel] = useState("Undergraduate");
+const TopicForm: React.FC<TopicFormProps> = ({
+  onSubmit,
+  onDraftChange,
+  initialTopicInfo,
+}) => {
+  const [mainTopic, setMainTopic] = useState(initialTopicInfo?.mainTopic ?? "");
+  const [topicDescription, setTopicDescription] = useState(
+    initialTopicInfo?.topicDescription ?? ""
+  );
+  const [documentLength, setDocumentLength] = useState<number>(
+    initialTopicInfo?.documentLength ?? 10
+  );
+  const [outputFormat, setOutputFormat] = useState<"DOCX" | "PDF">(
+    initialTopicInfo?.outputFormat ?? "DOCX"
+  );
+  const [academicLevel, setAcademicLevel] = useState(
+    initialTopicInfo?.academicLevel ?? "Undergraduate"
+  );
+  const [hasEdited, setHasEdited] = useState(false);
+
+  useEffect(() => {
+    if (!hasEdited) return;
+    onDraftChange({
+      mainTopic,
+      documentLength,
+      outputFormat,
+      topicDescription,
+      academicLevel,
+    });
+  }, [
+    academicLevel,
+    documentLength,
+    hasEdited,
+    mainTopic,
+    onDraftChange,
+    outputFormat,
+    topicDescription,
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +99,10 @@ const TopicForm: React.FC<TopicFormProps> = ({ onSubmit }) => {
                 id="topic"
                 placeholder="Enter your research topic"
                 value={mainTopic}
-                onChange={(e) => setMainTopic(e.target.value)}
+                onChange={(e) => {
+                  setMainTopic(e.target.value);
+                  setHasEdited(true);
+                }}
                 required
                 className="w-full"
               />
@@ -85,7 +122,10 @@ const TopicForm: React.FC<TopicFormProps> = ({ onSubmit }) => {
                 id="description"
                 placeholder="Provide additional details you focus on life plan"
                 value={topicDescription}
-                onChange={(e) => setTopicDescription(e.target.value)}
+                onChange={(e) => {
+                  setTopicDescription(e.target.value);
+                  setHasEdited(true);
+                }}
                 rows={5}
                 className="resize-y min-h-[100px]"
               />
@@ -102,7 +142,10 @@ const TopicForm: React.FC<TopicFormProps> = ({ onSubmit }) => {
                 </Label>
                 <Select
                   value={documentLength.toString()}
-                  onValueChange={(value) => setDocumentLength(parseInt(value))}
+                  onValueChange={(value) => {
+                    setDocumentLength(parseInt(value));
+                    setHasEdited(true);
+                  }}
                 >
                   <SelectTrigger id="length" className="w-full">
                     <SelectValue placeholder="Select length" />
@@ -122,7 +165,13 @@ const TopicForm: React.FC<TopicFormProps> = ({ onSubmit }) => {
                 <Label htmlFor="level" className="font-medium block mb-2">
                   Financial Literacy Level
                 </Label>
-                <Select value={academicLevel} onValueChange={setAcademicLevel}>
+                <Select
+                  value={academicLevel}
+                  onValueChange={(value) => {
+                    setAcademicLevel(value);
+                    setHasEdited(true);
+                  }}
+                >
                   <SelectTrigger id="level" className="w-full">
                     <SelectValue placeholder="Select level" />
                   </SelectTrigger>

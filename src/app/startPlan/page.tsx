@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import TopicForm from "@/components/TopicForm";
 import OutlineGenerator from "@/components/OutlineGenerator";
 import ContentGenerator from "@/components/ContentGenerator";
@@ -17,6 +17,12 @@ import { Button } from "@/components/ui/button";
 import { DocumentOutline, Topic } from "@/lib/types";
 import { generateAIOutline } from "@/lib/actions/outline";
 import { toast } from "sonner";
+import {
+  clearPlannerDraft,
+  loadPlannerDraft,
+  savePlannerDraft,
+} from "@/lib/planner-draft";
+import type { PlannerDraft } from "@/lib/types";
 
 const loadingMessages = [
   "Crafting your perfect document...",
@@ -32,6 +38,122 @@ const Index = () => {
   const [topicInfo, setTopicInfo] = useState<Topic | null>(null);
   const [documentOutline, setDocumentOutline] =
     useState<DocumentOutline | null>(null);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const [savedDraft, setSavedDraft] = useState<PlannerDraft | null>(null);
+  const [draftActive, setDraftActive] = useState(false);
+  const [draftStorageAvailable, setDraftStorageAvailable] = useState(true);
+  const [draftStatus, setDraftStatus] = useState<"idle" | "saving" | "saved">(
+    "idle"
+  );
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [topicFormKey, setTopicFormKey] = useState(0);
+
+  useEffect(() => {
+    try {
+      const draft = loadPlannerDraft();
+      if (draft) {
+        setSavedDraft(draft);
+      } else {
+        setDraftActive(true);
+      }
+    } catch (error) {
+      console.error("Failed to load saved life plan:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to load the saved plan from this browser."
+      );
+      setDraftStorageAvailable(false);
+      setDraftActive(true);
+    } finally {
+      setDraftLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      !draftLoaded ||
+      !draftActive ||
+      !draftStorageAvailable ||
+      (!topicInfo && !documentOutline)
+    ) {
+      return;
+    }
+
+    setDraftStatus("saving");
+    const timeout = window.setTimeout(() => {
+      const savedAt = new Date().toISOString();
+      try {
+        savePlannerDraft({
+          version: 1,
+          savedAt,
+          step,
+          topicInfo,
+          documentOutline,
+        });
+        setLastSavedAt(savedAt);
+        setDraftStatus("saved");
+      } catch (error) {
+        console.error("Failed to save life plan draft:", error);
+        toast.error(
+          "This browser could not save your plan. Your work may be lost if you leave this page."
+        );
+        setDraftStorageAvailable(false);
+        setDraftStatus("idle");
+      }
+    }, 500);
+
+    return () => window.clearTimeout(timeout);
+  }, [
+    documentOutline,
+    draftActive,
+    draftLoaded,
+    draftStorageAvailable,
+    step,
+    topicInfo,
+  ]);
+
+  const handleDraftChange = useCallback((topic: Topic) => {
+    setTopicInfo(topic);
+  }, []);
+
+  const resumeSavedDraft = () => {
+    if (!savedDraft) return;
+    setTopicInfo(savedDraft.topicInfo);
+    setDocumentOutline(savedDraft.documentOutline);
+    setStep(savedDraft.step);
+    setLastSavedAt(savedDraft.savedAt);
+    setSavedDraft(null);
+    setDraftActive(true);
+  };
+
+  const startNewPlan = (confirmDiscard = false) => {
+    if (
+      confirmDiscard &&
+      !window.confirm(
+        "Start a new plan and delete the saved plan from this browser?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      clearPlannerDraft();
+    } catch (error) {
+      console.error("Failed to clear saved life plan:", error);
+      toast.error("Unable to delete the saved plan from this browser.");
+      return;
+    }
+
+    setSavedDraft(null);
+    setTopicInfo(null);
+    setDocumentOutline(null);
+    setStep(1);
+    setTopicFormKey((key) => key + 1);
+    setLastSavedAt(null);
+    setDraftStatus("idle");
+    setDraftActive(true);
+  };
 
   const handleTopicSubmit = async (topic: Topic) => {
     setTopicInfo(topic);
@@ -86,6 +208,49 @@ const Index = () => {
     { icon: <FileText size={24} />, label: "Document Formatting" },
     { icon: <FileDown size={24} />, label: "Export Document" },
   ];
+
+  if (!draftLoaded) {
+    return (
+      <main className="min-h-screen bg-background text-foreground pt-24 px-4">
+        <p className="mx-auto max-w-4xl text-center text-muted-foreground">
+          Checking for a saved life plan…
+        </p>
+      </main>
+    );
+  }
+
+  if (savedDraft) {
+    return (
+      <main className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+        <div className="mx-auto max-w-2xl rounded-lg border bg-card p-6 shadow-sm sm:p-8">
+          <h1 className="text-2xl font-semibold">Continue your life plan?</h1>
+          <p className="mt-2 text-muted-foreground">
+            A plan for{" "}
+            <span className="font-medium text-foreground">
+              {savedDraft.topicInfo?.mainTopic.trim() || "Untitled life plan"}
+            </span>{" "}
+            was saved {new Date(savedDraft.savedAt).toLocaleString()}.
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            This draft is stored only in this browser. Anyone with access to this
+            device may be able to view it.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button onClick={resumeSavedDraft} className="w-full sm:w-auto">
+              Continue saved plan
+            </Button>
+            <Button
+              onClick={() => startNewPlan()}
+              variant="outline"
+              className="w-full sm:w-auto"
+            >
+              Start a new plan
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-16 md:pt-24">
@@ -167,6 +332,26 @@ const Index = () => {
                 </Button>
               )}
             </div>
+            <div className="mt-4 flex flex-col gap-2 border-t pt-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+              <span aria-live="polite">
+                {!draftStorageAvailable
+                  ? "Draft saving is unavailable in this browser."
+                  : draftStatus === "saving"
+                  ? "Saving draft on this device…"
+                  : lastSavedAt || draftStatus === "saved"
+                  ? "Draft saved on this device."
+                  : "Your draft is saved only in this browser."}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="self-start sm:self-auto"
+                onClick={() => startNewPlan(true)}
+              >
+                Start over
+              </Button>
+            </div>
           </div>
 
           <AnimatePresence mode="wait" initial={false} custom={step}>
@@ -180,7 +365,12 @@ const Index = () => {
                 exit="exit"
                 transition={{ duration: 0.3 }}
               >
-                <TopicForm onSubmit={handleTopicSubmit} />
+                <TopicForm
+                  key={topicFormKey}
+                  onSubmit={handleTopicSubmit}
+                  onDraftChange={handleDraftChange}
+                  initialTopicInfo={topicInfo}
+                />
               </motion.div>
             )}
 
